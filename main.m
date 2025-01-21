@@ -11,27 +11,33 @@ lateralGLimit = 3;
 totalLength = 1250; % m
 
 g = 9.81; % m/s^2
-res = 10000; % Resolution
+trackRes = 10000; % Resolution
 
 %% Track Definition
-s = zeros(3, res);
-v = zeros(3, res);
-a = zeros(3, res);
+s = zeros(3, trackRes);
+v = zeros(3, trackRes);
+a = zeros(3, trackRes);
 
-distanceTraveled = linspace(0, totalLength, res);
-gLoad = zeros(3, res);
+distanceTraveled = linspace(0, totalLength, trackRes);
+gLoad = zeros(3, trackRes);
 
 % Parabola
-pStart = 10; % In distance traveled (m)
-pLength = 100; % m
+pStart = [0, 0]; % x-y location (m)
+pStartDistance = 10; % in distance traveled (m) 
+pEnd = [10, 0]; % x-y location (m)
+pRes = 100;
 
-pRes = res/pLength;
-pStartIndex = round(pStart./distanceTraveled); 
-pEndIndex = pStartIndex + pRes;
+[ps, pDistanceTraveled] = Parabola(pStart, pEnd, [23, 10], pRes, g);
 
-[ps, pGLoad] = Parabola([0,0], [100, 100], pRes, pLength, g);
+pRes = pDistanceTraveled/totalLength;
+pStartIndex = round(pStartDistance/distanceTraveled); 
+pEndIndex = pStartIndex + round(pDistanceTraveled(end)/totalLength);
 
 figure
 hold on
 grid on
 plot(ps(1,:), ps(2,:))
+
+% gLoad = (v(1,:).^2+v(2,:).^2)./(g.*r)-1;
+
+

@@ -1,4 +1,4 @@
-function [s,radius,theta] = Loop(s_0, startingHeight, upGLimit,g)
+function [s,radius,gLoad] = Loop(s_0, startingHeight, upGLimit,g)
 %% Calculates minimum allowable radius with given initial position (s_0), 
 %% calculates position vector throughout loop and g-loading throughout loop
 %startingHeight = 125; % m
@@ -22,9 +22,9 @@ ylabel("G's");
 xlabel('S (m)');
 hold off
 
-r(:,1) = r_0(1) + radius*cos((s-(radius*pi/2))/radius);
-r(:,2) = linspace(0,1,length(s));
-r(:,3) = r_0(3) + radius + radius*sin((s-(radius*pi/2))/radius);
+s(:,1) = s_0(1) + radius*cos((s-(radius*pi/2))/radius);
+s(:,2) = s_0(2);
+s(:,3) = s_0(3) + radius + radius*sin((s-(radius*pi/2))/radius);
 
 figure
 hold on

@@ -1,14 +1,16 @@
-function [s,radius,theta] = Loop(s_0, startingHeight, upGLimit,g)
+clc
+clear
+close all
 %% Calculates minimum allowable radius with given initial position (s_0), 
 %% calculates position vector throughout loop and g-loading throughout loop
-%startingHeight = 125; % m
-%r_0 = [0,0,100]; 
-%upGLimit = 6;
-%g = 9.81; % m/s^2
+startingHeight = 125; % m
+r_0 = [0,0,100]; 
+upGLimit = 6;
+g = 9.81; % m/s^2
 
 
 % Initial Velocity Squared Calucaltion based of energy
-v_squared_initial = 2 * g * (startingHeight - s_0(3)); % m^2 / s^2 
+v_squared_initial = 2 * g * (startingHeight - r_0(3)); % m^2 / s^2 
 radius = v_squared_initial / (g *(upGLimit-1)); % minimum allowable radius 
 total_length = 2 * pi * radius;
 
@@ -36,3 +38,5 @@ ylabel("y (m)")
 zlabel("z (m)")
 c = colorbar;
 c.Label.String = "G Loading";
+
+

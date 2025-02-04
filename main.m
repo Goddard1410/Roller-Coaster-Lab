@@ -3,6 +3,7 @@ clear;
 close all;
 
 %% Constants
+startingHeight = 125; %m
 forwardGLimit = 5;
 backGLimit = 4;
 upGLimit = 6;

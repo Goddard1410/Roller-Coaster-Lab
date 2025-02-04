@@ -10,35 +10,65 @@ upGLimit = 6;
 downGLimit = 1;
 lateralGLimit = 3;
 totalLength = 1250; % m
+h0 = 125; % m
 
 g = 9.81; % m/s^2
 trackRes = 10000; % Resolution
 
 %% Track Definition
 s = zeros(3, trackRes);
-v = zeros(3, trackRes);
-a = zeros(3, trackRes);
+radius = zeros(1, trackRes);
+theta = zeros(1, trackRes);
+theta = theta - 90;
 
 distanceTraveled = linspace(0, totalLength, trackRes);
-gLoad = zeros(3, trackRes);
+
 
 % Parabola
-pStart = [0, 0]; % x-y location (m)
-pStartDistance = 10; % in distance traveled (m) 
-pEnd = [10, 0]; % x-y location (m)
-pRes = 100;
+pStart = [0, 2, 0]; % x-y-z location (m)
+pStartDistance = 100; % in distance traveled (m)
+pLength = 10; % in distance traveled (m) 
+pRes = round(pLength/totalLength*trackRes);
 
-[ps, pDistanceTraveled] = Parabola(pStart, pEnd, [23, 10], pRes, g);
+[ps, pRadius, pTheta] = Parabola(pStart, pLength, [0, 5, 5], pRes, g);
 
-pRes = pDistanceTraveled/totalLength;
-pStartIndex = round(pStartDistance/distanceTraveled); 
-pEndIndex = pStartIndex + round(pDistanceTraveled(end)/totalLength);
+pStartIndex = round(pStartDistance/totalLength*trackRes); 
+pEndIndex = pStartIndex + pRes - 1;
+
+s(1,pStartIndex:pEndIndex) = ps(1,:);
+s(2,pStartIndex:pEndIndex) = ps(2,:);
+s(3,pStartIndex:pEndIndex) = ps(3,:);
+
+radius(pStartIndex:pEndIndex) = pRadius;
+theta(pStartIndex:pEndIndex) = pTheta;
+
+gLoad = GLoad(s, radius, theta, g, h0);
 
 figure
 hold on
 grid on
-plot(ps(1,:), ps(2,:))
+title("Track Path")
+xlabel("x")
+ylabel("y")
+zlabel("z")
+plot3(s(1,:), s(2,:), s(3,:))
+view(50, 30)
 
-% gLoad = (v(1,:).^2+v(2,:).^2)./(g.*r)-1;
+figure
+hold on
+grid on
+title("G Loading")
+plot(s(2,:), gLoad)
 
 
+figure
+hold on
+grid on
+title("Curvature")
+plot(s(2,:), radius)
+
+figure
+hold on
+grid on
+title("Theta")
+plot(distanceTraveled, theta)

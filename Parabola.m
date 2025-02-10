@@ -1,12 +1,23 @@
-function [s, radius, theta] = Parabola(s_0, length, v_0, res, g)
+function [s, gLoad, distanceTraveled] = Parabola(s_0, tf, v_0, res, g, h0)
     s = zeros(3,res);
-    theta = zeros(1,res);
+    distanceTraveled = zeros(1,res);
+    t = linspace(0, tf, res);
     
-    %% TODO: Add s_0, change v to using height
-    s(1,:) = 0;
-    s(2,:) = linspace(0, length-s_0(2), res);
-    s(3,:) = v_0(3).*s(2,:)./v_0(2) - g.*s(2,:).^2./(2*v_0(2).^2);
+    % Create parabola given initial velocity
+    s(1,:) = s_0(1) + v_0(1)*t;
+    s(2,:) = s_0(2);
+    s(3,:) = s_0(3) + v_0(3)*t-0.5*g*t.^2;
 
-    radius = ((1+(v_0(3)/v_0(2)-g*s(2,:)./v_0(2).^2).^2).^(3/2))./(g/v_0(2).^2);
-    theta = theta-90;
+    dz_dx = v_0(3)/v_0(1)+g*s_0(1)/(v_0(1).^2)-g*s(1,:)/(v_0(1).^2);
+    d2z_dx2 = -g/(v_0(1).^2);
+
+    radius = (1+dz_dx.^2).^(3/2)./abs(d2z_dx2);
+    theta = 90 - atan2d(dz_dx,1);
+
+    gLoad = -2*(h0-s(3,:))./radius + sind(theta);
+    
+    for i = 2:res
+        distanceTraveled(i) = distanceTraveled(i-1) ...
+            + sqrt((s(1,i)-s(1,i-1)).^2+(s(3,i)-s(3,i-1)).^2);
+    end
 end

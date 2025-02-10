@@ -17,32 +17,69 @@ trackRes = 10000; % Resolution
 
 %% Track Definition
 s = zeros(3, trackRes);
-radius = zeros(1, trackRes);
-theta = zeros(1, trackRes);
-theta = theta - 90;
+gLoad = zeros(1, trackRes);
 
-distanceTraveled = linspace(0, totalLength, trackRes);
+distTraveled = linspace(0, totalLength, trackRes);
 
+%% Parabola
+pStart = [0, 0, h0-1]; % x-y-z location (m) coming in horizontally
+pT = 5; % Time elapsed during parabola
+pRes = 200;
+pStartDist = 5; % m
 
-% Parabola
-pStart = [0, 2, 0]; % x-y-z location (m)
-pStartDistance = 100; % in distance traveled (m)
-pLength = 10; % in distance traveled (m) 
+[~, ~, pDistTraveled] = Parabola(pStart, pT, [sqrt(2*g*(h0-(h0-1))), 0, 0], pRes, g, h0);
+pLength = pDistTraveled(end);
 pRes = round(pLength/totalLength*trackRes);
 
-[ps, pRadius, pTheta] = Parabola(pStart, pLength, [0, 5, 5], pRes, g);
+[ps, pGLoad, ~] = Parabola(pStart, pT, [sqrt(2*g*(h0-(h0-1))), 0, 0], pRes, g, h0);
 
-pStartIndex = round(pStartDistance/totalLength*trackRes); 
+pStartIndex = round(pStartDist/totalLength*trackRes);
 pEndIndex = pStartIndex + pRes - 1;
 
 s(1,pStartIndex:pEndIndex) = ps(1,:);
 s(2,pStartIndex:pEndIndex) = ps(2,:);
 s(3,pStartIndex:pEndIndex) = ps(3,:);
 
-radius(pStartIndex:pEndIndex) = pRadius;
-theta(pStartIndex:pEndIndex) = pTheta;
+gLoad(pStartIndex:pEndIndex) = pGLoad;
 
-gLoad = GLoad(s, radius, theta, g, h0);
+%% Loop
+% More rigerous proof required for start height
+lStart = s(:, 969)';
+lRes = 200;
+
+[~, ~, lLength] = Loop(lStart, h0, upGLimit, lRes, g);
+lRes = round(lLength/totalLength*trackRes);
+
+[ls, lGLoad, ~] = Loop(lStart, h0, upGLimit, lRes, g);
+
+lStartIndex = round(distTraveled(969)/totalLength*trackRes);
+lEndIndex = lStartIndex + lRes - 1;
+
+s(1,lStartIndex:lEndIndex) = ls(:,1)';
+s(2,lStartIndex:lEndIndex) = ls(:,2)';
+s(3,lStartIndex:lEndIndex) = ls(:,3)';
+
+gLoad(lStartIndex:lEndIndex) = lGLoad;
+
+%% Banked Turn
+tStart = s(:, 969)';
+tStart(1) = tStart(1) + 50;
+tRes = 200;
+
+[~, ~, tLength] = BankedTurn(tStart, h0, upGLimit, tRes, g);
+tRes = round(lLength/totalLength*trackRes);
+
+[ts, tGLoad, ~] = BankedTurn(tStart, h0, upGLimit, tRes, g);
+
+tStartIndex = round((distTraveled(969)+lLength)/totalLength*trackRes);
+tEndIndex = tStartIndex + tRes - 1;
+
+s(1,tStartIndex:tEndIndex) = ts(1,:);
+s(2,tStartIndex:tEndIndex) = ts(2,:);
+s(3,tStartIndex:tEndIndex) = ts(3,:);
+
+gLoad(tStartIndex:tEndIndex) = tGLoad;
+
 
 figure
 hold on
@@ -58,17 +95,6 @@ figure
 hold on
 grid on
 title("G Loading")
-plot(s(2,:), gLoad)
-
-
-figure
-hold on
-grid on
-title("Curvature")
-plot(s(2,:), radius)
-
-figure
-hold on
-grid on
-title("Theta")
-plot(distanceTraveled, theta)
+xlabel("Distance Traveled (m)")
+ylabel("G Force")
+plot(distTraveled, gLoad)

@@ -1,11 +1,7 @@
-function [r,gLoad,total_length] = Loop(s_0, startingHeight, upGLimit,res,g)
+function [r,gLoad,s, dz_dx] = Loop(s_0, startingHeight, upGLimit,res,g)
 %% Calculates minimum allowable radius with given initial position (s_0), 
-%% calculates position vector throughout loop and g-loading throughout loop
-%startingHeight = 125; % m
+%% Calculates position vector throughout loop and g-loading throughout loop
 %r_0 = [0,0,100]; 
-%upGLimit = 6;
-%g = 9.81; % m/s^2
-
 
 % Initial Velocity Squared Calucaltion based of energy
 v_squared_initial = 2 * g * (startingHeight - s_0(3)); % m^2 / s^2 
@@ -26,6 +22,8 @@ gLoad = gLoading(s)';
 r(:,1) = s_0(1) + radius*cos((s-(radius*pi/2))/radius);
 r(:,2) = s_0(2);
 r(:,3) = s_0(3) + radius + radius*sin((s-(radius*pi/2))/radius);
+
+dz_dx = diff(r(:,3))./diff(r(:,1));
 
 % figure
 % hold on
